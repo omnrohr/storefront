@@ -13,7 +13,8 @@ def products(request):
     # I added select related to call the related coloumn in product model with porduct in same time to prevent make
     #  a single query to database when calling the collection name. review the serilaizer in prodcut class
     query_set = Product.objects.select_related('collection').all()
-    serializer = ProductSerializer(query_set, many=True)
+    serializer = ProductSerializer(
+        query_set, many=True, context={'request': request})
     return Response(serializer.data)
 
 
@@ -22,3 +23,8 @@ def product_list(request, id):
     product = get_object_or_404(Product, pk=id)
     serializer = ProductSerializer(product)
     return Response(serializer.data)
+
+
+@api_view()
+def collection_details(request, pk=id):
+    return Response('ok')
