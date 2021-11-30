@@ -15,6 +15,7 @@ class Collection(models.Model):
 class Product(models.Model):
     title = models.CharField(max_length=150, null=True, blank=True)
     unit_price = models.DecimalField(max_digits=9, decimal_places=3, default=1)
+    slug = models.SlugField()
     weight = models.DecimalField(
         max_digits=9, decimal_places=3, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
@@ -30,26 +31,38 @@ class Product(models.Model):
 
 
 class Customer(models.Model):
+    MEMBERSHIP_BRONZE = 'B'
+    MEMBERSHIP_SILVER = 'S'
+    MEMBERSHIP_GOLD = 'G'
+
+    MEMBERSHIP_CHOICES = [
+        (MEMBERSHIP_BRONZE, 'Bronze'),
+        (MEMBERSHIP_SILVER, 'Silver'),
+        (MEMBERSHIP_GOLD, 'Gold'),
+    ]
     f_name = models.CharField(max_length=50, null=True, blank=True)
     l_name = models.CharField(max_length=50, null=True, blank=True)
     email = models.EmailField(
         max_length=255, unique=True, null=True, blank=True)
     phone = models.CharField(max_length=15, null=True, blank=True, unique=True)
+    birth_date = models.DateField(null=True)
     create_date = models.DateField(auto_now_add=True)
+    membership = models.CharField(
+        max_length=1, choices=MEMBERSHIP_CHOICES, default=MEMBERSHIP_BRONZE)
 
 
 class Order(models.Model):
-    ORDER_STATUS = [
-        ('VP', 'Pending'),
-        ('VS', 'Sending'),
-        ('VR', 'Vendor Received'),
-        ('VR', 'preparing for dispatch'),
-        ('DW', 'On my way'),
-        ('DL', 'Delivered'),
-        ('VF', 'Failed')
+    PAYMENT_STATUS_PENDING = 'P'
+    PAYMENT_STATUS_COMPLETE = 'C'
+    PAYMENT_STATUS_FAILED = 'F'
+    PAYMENT_STATUS_CHOICES = [
+        (PAYMENT_STATUS_PENDING, 'Pending'),
+        (PAYMENT_STATUS_COMPLETE, 'Complete'),
+        (PAYMENT_STATUS_FAILED, 'Failed')
     ]
     placed_at = models.DateTimeField(auto_now=True)
-    status = models.CharField(max_length=2, choices=ORDER_STATUS, default='VP')
+    status = models.CharField(
+        max_length=2, choices=PAYMENT_STATUS_CHOICES, default=PAYMENT_STATUS_PENDING)
     customer = models.ForeignKey(
         Customer, on_delete=models.PROTECT, null=True, blank=True)
 
