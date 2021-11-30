@@ -141,3 +141,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 if DEBUG:
     import mimetypes
     mimetypes.add_type("application/javascript", ".js", True)
+
+# change serealizer desimil return to int not str
+REST_FRAMEWORK = {
+    'COERCE_DECIMAL_TO_STRING': False
+}
