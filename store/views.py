@@ -10,7 +10,9 @@ from .serializers import ProductSerializer
 
 @api_view()
 def products(request):
-    query_set = Product.objects.all()
+    # I added select related to call the related coloumn in product model with porduct in same time to prevent make
+    #  a single query to database when calling the collection name. review the serilaizer in prodcut class
+    query_set = Product.objects.select_related('collection').all()
     serializer = ProductSerializer(query_set, many=True)
     return Response(serializer.data)
 
