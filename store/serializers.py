@@ -5,9 +5,12 @@ from rest_framework import serializers
 from store.models import Product, Collection
 
 
-class CollectionSerializer(serializers.Serializer):
-    id = serializers.IntegerField()
-    title = serializers.CharField(max_length=150)
+class CollectionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Collection
+        fields = ['id', 'title']
+    # id = serializers.IntegerField()
+    # title = serializers.CharField(max_length=150)
 
 
 # class ProductSerializer(serializers.Serializer):
@@ -44,19 +47,19 @@ class ProductSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = Product
-        fields = ['id', 'title', 'unit_price', 'price_with_tax', 'collection',
-                  'collection_ref', 'nested_collection', 'collectin_link']
+        fields = ['id', 'title', 'unit_price', 'price_with_tax', 'collection']
+        #   ['collection_ref', 'nested_collection', 'collectin_link']
 
     price_with_tax = serializers.SerializerMethodField(
         method_name='calculate_tax')
-    collection = serializers.PrimaryKeyRelatedField(
-        queryset=Collection.objects.all()
-    )
-    collection_ref = serializers.StringRelatedField(source='collection')
-    nested_collection = CollectionSerializer(source='collection')
-    collectin_link = serializers.HyperlinkedRelatedField(
-        queryset=Collection.objects.all(), view_name='collections-details', source='collection'
-    )
+    # collection = serializers.PrimaryKeyRelatedField(
+    #     queryset=Collection.objects.all()
+    # )
+    # collection_ref = serializers.StringRelatedField(source='collection')
+    # nested_collection = CollectionSerializer(source='collection')
+    # collectin_link = serializers.HyperlinkedRelatedField(
+    #     queryset=Collection.objects.all(), view_name='collections-details', source='collection'
+    # )
 
     def calculate_tax(self, product: Product):
         return product.unit_price * Decimal(1.16)

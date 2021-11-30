@@ -1,4 +1,5 @@
 from django.db.models.query import QuerySet
+from django.http.response import HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.response import Response
@@ -8,20 +9,28 @@ from .models import Product
 from .serializers import ProductSerializer
 
 
-@api_view()
+@api_view(['GET', 'POST'])
 def products(request):
-    # I added select related to call the related coloumn in product model with porduct in same time to prevent make
-    #  a single query to database when calling the collection name. review the serilaizer in prodcut class
-    query_set = Product.objects.select_related('collection').all()
-    serializer = ProductSerializer(
-        query_set, many=True, context={'request': request})
-    return Response(serializer.data)
+    if request.method == 'GET':
+        # I added select related to call the related coloumn in product model with porduct in same time to prevent make
+        #  a single query to database when calling the collection name. review the serilaizer in prodcut class
+        query_set = Product.objects.select_related('collection').all()
+        serializer = ProductSerializer(
+            query_set, many=True, context={'request': request})
+        return Response(serializer.data)
+    elif request.method == "POST":
+        serializer = ProductSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.validated_data
+            return Response('OK')
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view()
 def product_list(request, id):
     product = get_object_or_404(Product, pk=id)
-    serializer = ProductSerializer(product)
+    serializer = ProductSerializer(product, context={'request': request})
     return Response(serializer.data)
 
 

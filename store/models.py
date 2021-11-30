@@ -19,8 +19,8 @@ class Collection(models.Model):
 
 
 class Product(models.Model):
-    title = models.CharField(max_length=150, null=True, blank=True)
-    unit_price = models.DecimalField(max_digits=9, decimal_places=3, default=1)
+    title = models.CharField(max_length=150)
+    unit_price = models.DecimalField(max_digits=9, decimal_places=3)
     slug = models.SlugField()
     weight = models.DecimalField(
         max_digits=9, decimal_places=3, null=True, blank=True)
@@ -30,7 +30,7 @@ class Product(models.Model):
     last_update = models.DateTimeField(auto_now=True)
     inventory = models.BooleanField(default=True)
     collection = models.ForeignKey(
-        Collection, on_delete=models.PROTECT, null=True, blank=True)
+        Collection, on_delete=models.PROTECT)
     tag = models.CharField(max_length=30, null=True, blank=True)
     vendor = models.CharField(max_length=155, null=True, blank=True)
     promotions = models.ManyToManyField(Promotion, related_name='products')
