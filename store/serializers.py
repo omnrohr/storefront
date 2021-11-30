@@ -1,7 +1,13 @@
 from decimal import Decimal
 from rest_framework import serializers
 
+
 from store.models import Product, Collection
+
+
+class CollectionSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    title = serializers.CharField(max_length=150)
 
 
 class ProductSerializer(serializers.Serializer):
@@ -16,6 +22,7 @@ class ProductSerializer(serializers.Serializer):
         queryset=Collection.objects.all()
     )
     collection_ref = serializers.StringRelatedField(source='collection')
+    nested_collection = CollectionSerializer(source='collection')
 
     def calculate_tax(self, product: Product):
         return product.unit_price * Decimal(1.16)
