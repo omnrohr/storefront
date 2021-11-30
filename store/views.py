@@ -22,14 +22,25 @@ def products(request):
         serializer = ProductSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response('Item created successfully')
+        return Response(data=serializer.data, status=status.HTTP_201_CREATED)
 
 
-@api_view()
+@api_view(['GET', 'PATCH', 'PUT'])
 def product_list(request, id):
     product = get_object_or_404(Product, pk=id)
-    serializer = ProductSerializer(product, context={'request': request})
-    return Response(serializer.data)
+    if request.method == 'GET':
+        serializer = ProductSerializer(product, context={'request': request})
+        return Response(serializer.data)
+    elif request.method == 'PATCH':
+        serializer = ProductSerializer(instance=product, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(data=serializer.data, status=status.HTTP_202_ACCEPTED)
+    elif request.method == 'PUT':
+        serializer = ProductSerializer(instance=product, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(data=serializer.data, status=status.HTTP_202_ACCEPTED)
 
 
 @api_view()
