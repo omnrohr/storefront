@@ -15,9 +15,7 @@ class ProductSerializer(serializers.Serializer):
     collection = serializers.PrimaryKeyRelatedField(
         queryset=Collection.objects.all()
     )
-    collection_ref = serializers.StringRelatedField(
-        queryset=Collection.objects.all()
-    )
+    collection_ref = serializers.StringRelatedField(source='collection')
 
     def calculate_tax(self, product: Product):
         return product.unit_price * Decimal(1.16)
