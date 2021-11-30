@@ -21,8 +21,8 @@ def products(request):
     elif request.method == "POST":
         serializer = ProductSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.validated_data
-        return Response('OK')
+        serializer.save()
+        return Response('Item created successfully')
 
 
 @api_view()
