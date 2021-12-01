@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import OrderItem, Product, Collection, Review
 from .serializers import ProductSerializer, CollectionSerializer, ReviewSerializer
+from .filters import ProductFilter
 
 
 class ProductViewSet(ModelViewSet):
@@ -12,7 +13,7 @@ class ProductViewSet(ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['collection_id']
+    filterset_class = ProductFilter
     """
     becouse I applied django filter backend I dont need to overwrite get_queryset method
     """
