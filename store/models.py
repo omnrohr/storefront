@@ -30,7 +30,7 @@ class Product(models.Model):
     last_update = models.DateTimeField(auto_now=True)
     inventory = models.BooleanField(default=True)
     collection = models.ForeignKey(
-        Collection, on_delete=models.PROTECT)
+        Collection, on_delete=models.PROTECT, related_name='products')
     tag = models.CharField(max_length=30, null=True, blank=True)
     vendor = models.CharField(max_length=155, null=True, blank=True)
     promotions = models.ManyToManyField(Promotion, related_name='products')
@@ -70,7 +70,7 @@ class Order(models.Model):
     status = models.CharField(
         max_length=2, choices=PAYMENT_STATUS_CHOICES, default=PAYMENT_STATUS_PENDING)
     customer = models.ForeignKey(
-        Customer, on_delete=models.PROTECT, null=True, blank=True)
+        Customer, on_delete=models.PROTECT, null=True, blank=True, related_name='orders')
 
 
 class Address(models.Model):
@@ -80,14 +80,14 @@ class Address(models.Model):
     floor = models.CharField(max_length=3, null=True, blank=True)
     apartment = models.CharField(max_length=4, null=True, blank=True)
     customer = models.ForeignKey(
-        Customer, on_delete=models.CASCADE)
+        Customer, on_delete=models.CASCADE, related_name='addresses')
 
 
 class OrderItem(models.Model):
     order = models.ForeignKey(
-        Order, on_delete=models.PROTECT, null=True, blank=True)
+        Order, on_delete=models.PROTECT, null=True, blank=True, related_name='orderitems')
     product = models.ForeignKey(
-        Product, on_delete=models.PROTECT)
+        Product, on_delete=models.PROTECT, related_name='orderitems')
     quantity = models.PositiveSmallIntegerField()
     unit_price = models.DecimalField(
         max_digits=9, decimal_places=3, null=True, blank=True)
@@ -98,6 +98,8 @@ class Cart(models.Model):
 
 
 class CartItem(models.Model):
-    cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, on_delete=models.PROTECT)
+    cart = models.ForeignKey(
+        Cart, on_delete=models.CASCADE, related_name='cartitems')
+    product = models.ForeignKey(
+        Product, on_delete=models.PROTECT, related_name='cartitems')
     quantity = models.PositiveSmallIntegerField()
