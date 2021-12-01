@@ -2,51 +2,28 @@ from django.db.models.aggregates import Count
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.views import APIView
+from rest_framework.mixins import CreateModelMixin, ListModelMixin
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from .models import Product, Collection
 from .serializers import ProductSerializer, CollectionSerializer
 
 
-class ProductList(APIView):
-    def get(self, request):
-        query_set = Product.objects.select_related('collection').all()
-        serializer = ProductSerializer(
-            query_set, many=True, context={'request': request})
-        return Response(serializer.data)
+class ProductList(ListCreateAPIView):
+    queryset = Product.objects.select_related('collection').all()
+    serializer_class = ProductSerializer
 
-    def post(self, request):
-        serializer = ProductSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+    def get_serializer_context(self):
+        return {'request': self.request}
 
 
-class ProductDetail(APIView):
-    def get(self, request, id):
-        product = get_object_or_404(Product, pk=id)
-        serializer = ProductSerializer(
-            product, context={'request': request})
-        return Response(serializer.data)
+class ProductDetail(RetrieveUpdateDestroyAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
 
-    def patch(self, request):
-        product = get_object_or_404(Product, pk=id)
-        serializer = ProductSerializer(
-            instance=product, data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(data=serializer.data, status=status.HTTP_202_ACCEPTED)
-
-    def put(self, request):
-        product = get_object_or_404(Product, pk=id)
-        serializer = ProductSerializer(
-            instance=product, data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(data=serializer.data, status=status.HTTP_202_ACCEPTED)
-
-    def delete(self, request):
-        product = get_object_or_404(Product, pk=id)
+    def delete(self, request, pk):
+        product = get_object_or_404(Product, pk=pk)
         if product.orderitems.count() > 0:
             return Response({
                 'error': 'This item is included in some orders, we apologize for not being able to delete it'
@@ -56,44 +33,39 @@ class ProductDetail(APIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class CollectionList(APIView):
-    def get(self, request):
-        query_set = Collection.objects.annotate(
-            products_count=Count('products')).all()
-        serializer = CollectionSerializer(query_set, many=True)
-        return Response(serializer.data)
-
-    def post(self, request):
-        serializer = CollectionSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+class CollectionList(ListCreateAPIView):
+    queryset = Collection.objects.annotate(
+        products_count=Count('products')).all()
+    serializer_class = CollectionSerializer
 
 
-class CollectionDetails(APIView):
-    def get(self, request, pk):
-        collection = get_object_or_404(Collection.objects.annotate(
-            products_count=Count('products')), pk=pk)
-        serializer = CollectionSerializer(
-            collection, context={'request': request})
-        return Response(serializer.data)
+class CollectionDetails(RetrieveUpdateDestroyAPIView):
+    queryset = Collection.objects.annotate(
+        products_count=Count('products'))
+    serializer_class = CollectionSerializer
+    # def get(self, request, pk):
+    #     collection = get_object_or_404(Collection.objects.annotate(
+    #         products_count=Count('products')), pk=pk)
+    #     serializer = CollectionSerializer(
+    #         collection, context={'request': request})
+    #     return Response(serializer.data)
 
-    def patch(self, request, pk):
-        collection = get_object_or_404(Collection.objects.annotate(
-            products_count=Count('products')), pk=pk)
-        serializer = CollectionSerializer(
-            instance=collection, data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
+    # def patch(self, request, pk):
+    #     collection = get_object_or_404(Collection.objects.annotate(
+    #         products_count=Count('products')), pk=pk)
+    #     serializer = CollectionSerializer(
+    #         instance=collection, data=request.data)
+    #     serializer.is_valid(raise_exception=True)
+    #     serializer.save()
+    #     return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
 
-    def put(self, request, pk):
-        collection = get_object_or_404(Collection.objects.annotate(
-            products_count=Count('products')), pk=pk)
-        serializer = CollectionSerializer(collection, data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
+    # def put(self, request, pk):
+    #     collection = get_object_or_404(Collection.objects.annotate(
+    #         products_count=Count('products')), pk=pk)
+    #     serializer = CollectionSerializer(collection, data=request.data)
+    #     serializer.is_valid(raise_exception=True)
+    #     serializer.save()
+    #     return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
 
     def delete(self, request, pk):
         collection = get_object_or_404(Collection.objects.annotate(
