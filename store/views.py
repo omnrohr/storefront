@@ -2,6 +2,7 @@ from django.db.models.aggregates import Count
 from rest_framework import status
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
+from rest_framework.filters import SearchFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import OrderItem, Product, Collection, Review
 from .serializers import ProductSerializer, CollectionSerializer, ReviewSerializer
@@ -12,17 +13,9 @@ class ProductViewSet(ModelViewSet):
 
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = [DjangoFilterBackend, SearchFilter]
     filterset_class = ProductFilter
-    """
-    becouse I applied django filter backend I dont need to overwrite get_queryset method
-    """
-    # def get_queryset(self):
-    #     queryset = Product.objects.all()
-    #     collection_id = self.request.query_params.get('collection_id')
-    #     if collection_id is not None:
-    #         queryset = queryset.filter(collection_id=collection_id)
-    #     return queryset
+    search_fields = ['title', 'description']
 
     def get_serializer_context(self):
         return {'request': self.request}
@@ -50,8 +43,7 @@ class CollectionViewSet(ModelViewSet):
 
 
 class ReviewViewSet(ModelViewSet):
-    # this queryset didnt filter the reviews by id so we will overwrite it
-    # queryset = Review.objects.all()
+
     serializer_class = ReviewSerializer
 
     def get_queryset(self):

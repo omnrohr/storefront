@@ -22,7 +22,7 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = ['id', 'title', 'unit_price',
-                  'price_with_tax', 'slug', 'inventory', 'collection']
+                  'price_with_tax', 'slug', 'inventory', 'collection', 'description']
         #   ['collection_ref', 'nested_collection', 'collectin_link']
 
     price_with_tax = serializers.SerializerMethodField(
