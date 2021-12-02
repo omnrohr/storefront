@@ -1,6 +1,6 @@
 from decimal import Decimal
 from rest_framework import serializers
-from store.models import Cart, CartItem, Product, Collection, Review
+from store.models import Cart, CartItem, Product, Collection, Review, OrderItem
 
 
 class CollectionSerializer(serializers.ModelSerializer):
@@ -65,7 +65,7 @@ class CartItemSerializer(serializers.ModelSerializer):
 
 class CartSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(read_only=True)
-    items = CartItemSerializer(many=True)
+    items = CartItemSerializer(many=True, read_only=True)
     cart_total = serializers.SerializerMethodField(
         method_name='get_cart_total')
 
@@ -77,3 +77,28 @@ class CartSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cart
         fields = ['id', 'items', 'cart_total']
+
+
+class AddCartItemsSerializer(serializers.ModelSerializer):
+    product_id = serializers.IntegerField()
+
+    def save(self, **kwargs):
+        cart_id = self.context['cart_id']
+        product_id = self.validated_data['product_id']
+        quantity = self.validated_data['quantity']
+        try:
+            cart_item = CartItem.objects.get(
+                cart_id=cart_id, product_id=product_id)
+            # if item exists that mean you need to update the quantity
+            cart_item.quantity += quantity
+            cart_item.save()
+            self.instance = cart_item
+        except CartItem.DoesNotExist:
+            # if item not exist you need to create an item
+            self.instance = CartItem.objects.create(
+                cart_id=cart_id, **self.validated_data)
+        return self.instance
+
+    class Meta:
+        model = CartItem
+        fields = ['id', 'product_id', 'quantity']
