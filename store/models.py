@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.validators import MinValueValidator
 from django.db.models.fields import UUIDField
 from uuid import uuid4
 
@@ -90,9 +91,10 @@ class OrderItem(models.Model):
         Order, on_delete=models.PROTECT, null=True, blank=True, related_name='orderitems')
     product = models.ForeignKey(
         Product, on_delete=models.PROTECT, related_name='orderitems')
-    quantity = models.PositiveSmallIntegerField()
+    quantity = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1)])
     unit_price = models.DecimalField(
-        max_digits=9, decimal_places=3, null=True, blank=True)
+        max_digits=9, decimal_places=3, validators=[MinValueValidator(0.001)])
 
 
 class Cart(models.Model):
@@ -105,7 +107,8 @@ class CartItem(models.Model):
         Cart, on_delete=models.CASCADE, related_name='items')
     product = models.ForeignKey(
         Product, on_delete=models.CASCADE, related_name='items')
-    quantity = models.PositiveSmallIntegerField()
+    quantity = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1)])
 
     class Meta:
         unique_together = [['cart', 'product']]
