@@ -7,7 +7,7 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.pagination import PageNumberPagination, LimitOffsetPagination
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Cart, CartItem, OrderItem, Product, Collection, Review
-from .serializers import AddCartItemsSerializer, CartItemSerializer, ProductSerializer, CollectionSerializer, ReviewSerializer, CartSerializer
+from .serializers import AddCartItemsSerializer, CartItemSerializer, ProductSerializer, CollectionSerializer, ReviewSerializer, CartSerializer, UpdateCartItemsSerializer
 from .filters import ProductFilter
 
 
@@ -64,10 +64,13 @@ class CartViewSet(CreateModelMixin, GenericViewSet, RetrieveModelMixin, DestroyM
 
 
 class CartItemsViewSet(ModelViewSet):
+    http_method_names = ['get', 'post', 'patch', 'delete']
 
     def get_serializer_class(self, *args, **kwargs):
         if self.request.method == 'POST':
             return AddCartItemsSerializer
+        if self.request.method == 'PATCH':
+            return UpdateCartItemsSerializer
         return CartItemSerializer
 
     def get_serializer_context(self):

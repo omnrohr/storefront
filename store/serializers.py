@@ -1,4 +1,6 @@
 from decimal import Decimal
+from django.db import models
+from django.db.models import fields
 from rest_framework import serializers
 from store.models import Cart, CartItem, Product, Collection, Review, OrderItem
 
@@ -107,3 +109,9 @@ class AddCartItemsSerializer(serializers.ModelSerializer):
     class Meta:
         model = CartItem
         fields = ['id', 'product_id', 'quantity']
+
+
+class UpdateCartItemsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CartItem
+        fields = ['quantity']
